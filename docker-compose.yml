@@ -1,0 +1,19 @@
+services:
+  dashboard:
+    build: .
+    container_name: claude-reset-timer
+    ports:
+      - "3456:3000"
+    volumes:
+      - ${HOME}/.claude:/claude-data:ro
+    environment:
+      - CLAUDE_DATA_DIR=/claude-data
+      - TZ=Asia/Seoul
+    # 호스트 유저 UID로 실행하여 ~/.claude 파일 읽기 권한 확보
+    user: "${UID:-1000}:${GID:-1000}"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
