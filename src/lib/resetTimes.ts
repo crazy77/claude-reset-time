@@ -1,5 +1,5 @@
 // Claude Code 사용량 한도 리셋 시간 계산
-// ��본 패턴: 매 5시간 / 7일 리셋
+// 기본 패턴: 매 5시간 / 7일 리셋
 // statusline의 resets_at이 있으면 실제 서버 기준으로 자동 보정
 
 const DEFAULT_EPOCH = new Date("2026-03-29T01:00:00+09:00").getTime();
@@ -165,23 +165,24 @@ export function getMonthRange(date: Date): { start: Date; end: Date } {
 
 // ========== 포맷 ==========
 
-export function formatTime(date: Date): string {
-  return date.toLocaleTimeString("ko-KR", {
+export function formatTime(date: Date, locale: string = "ko-KR"): string {
+  return date.toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   });
 }
 
-export function formatDate(date: Date): string {
-  return date.toLocaleDateString("ko-KR", {
+export function formatDate(date: Date, locale: string = "ko-KR"): string {
+  return date.toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     weekday: "short",
   });
 }
 
-export function formatRemaining(ms: number): string {
+export function formatRemaining(ms: number, locale: string = "ko-KR"): string {
+  const isEn = locale.startsWith("en");
   const totalSec = Math.floor(ms / 1000);
   const h = Math.floor(totalSec / 3600);
   const m = Math.floor((totalSec % 3600) / 60);
@@ -189,29 +190,36 @@ export function formatRemaining(ms: number): string {
   const mm = String(m).padStart(2, "0");
   const ss = String(s).padStart(2, "0");
   if (h > 0) return `${h}h ${mm}m ${ss}s`;
+  if (isEn) return `${m}m ${ss}s`;
   if (m > 0) return `${m}분 ${ss}초`;
   return `${s}초`;
 }
 
-export function formatRemainingLong(ms: number): string {
+export function formatRemainingLong(ms: number, locale: string = "ko-KR"): string {
+  const isEn = locale.startsWith("en");
   const totalSec = Math.floor(ms / 1000);
   const d = Math.floor(totalSec / 86400);
   const h = Math.floor((totalSec % 86400) / 3600);
   const m = Math.floor((totalSec % 3600) / 60);
+  if (isEn) {
+    if (d > 0) return `${d}d ${h}h ${m}m`;
+    if (h > 0) return `${h}h ${m}m`;
+    return `${m}m`;
+  }
   if (d > 0) return `${d}일 ${h}시간 ${m}분`;
   if (h > 0) return `${h}시간 ${m}분`;
   return `${m}분`;
 }
 
-export function formatDateTime(date: Date): string {
+export function formatDateTime(date: Date, locale: string = "ko-KR"): string {
   return (
-    date.toLocaleDateString("ko-KR", {
+    date.toLocaleDateString(locale, {
       month: "short",
       day: "numeric",
       weekday: "short",
     }) +
     " " +
-    date.toLocaleTimeString("ko-KR", {
+    date.toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,

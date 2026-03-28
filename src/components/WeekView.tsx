@@ -9,6 +9,7 @@ import {
   getWindowProgress,
 } from "@/lib/resetTimes";
 import type { UsageCurrent, WindowUsage } from "@/lib/types";
+import { useDict } from "@/i18n/context";
 
 interface WeekViewProps {
   weekStart: Date;
@@ -16,8 +17,6 @@ interface WeekViewProps {
   usage: UsageCurrent | null;
   windowUsageData: WindowUsage[];
 }
-
-const DAY_NAMES = ["월", "화", "수", "목", "금", "토", "일"];
 
 function formatTokens(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -32,6 +31,10 @@ function getBarColor(pct: number): string {
 }
 
 export default function WeekView({ weekStart, now, usage, windowUsageData }: WeekViewProps) {
+  const dict = useDict();
+  const locale = dict.locale;
+  const DAY_NAMES = dict.calendar.days;
+
   const days = useMemo(() => {
     const result = [];
     for (let i = 0; i < 7; i++) {
@@ -47,14 +50,12 @@ export default function WeekView({ weekStart, now, usage, windowUsageData }: Wee
   const currentProgress = getWindowProgress(now);
   const usedPct = usage?.rate_limits?.five_hour?.used_percentage ?? null;
 
-  // JSONL 윈도우별 토큰 맵
   const tokenMap = useMemo(() => {
     const map = new Map<number, WindowUsage>();
     for (const w of windowUsageData) map.set(w.windowStart, w);
     return map;
   }, [windowUsageData]);
 
-  // 바 비율 계산용 max
   const maxTokens = useMemo(() => {
     let max = 0;
     for (const w of windowUsageData) max = Math.max(max, w.inputTokens + w.outputTokens);
@@ -118,9 +119,8 @@ export default function WeekView({ weekStart, now, usage, windowUsageData }: Wee
                           }
                         `}
                       >
-                        {formatTime(reset)}
+                        {formatTime(reset, locale)}
 
-                        {/* 현재 윈도우: 사용률 + 경과 바 */}
                         {isCurrentReset && (
                           <div className="mt-1.5 space-y-1">
                             {usedPct !== null && (
@@ -148,7 +148,6 @@ export default function WeekView({ weekStart, now, usage, windowUsageData }: Wee
                           </div>
                         )}
 
-                        {/* 과거 윈도우: 토큰 바 */}
                         {resetIsPast && tokens && (
                           <div className="mt-1.5">
                             <div className="h-1.5 bg-white/10 rounded-full overflow-hidden flex" style={{ minWidth: "40px" }}>
@@ -165,12 +164,11 @@ export default function WeekView({ weekStart, now, usage, windowUsageData }: Wee
                         )}
                       </div>
 
-                      {/* 과거 윈도우 툴팁 */}
                       {resetIsPast && tokens && (
                         <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 hidden group-hover:block z-20">
                           <div className="bg-surface-light border border-border rounded-lg px-2.5 py-1.5 text-[10px] whitespace-nowrap shadow-xl">
-                            <p className="text-accent">입력: {formatTokens(tokens.inputTokens)}</p>
-                            <p className="text-teal-400">출력: {formatTokens(tokens.outputTokens)}</p>
+                            <p className="text-accent">{dict.chart.input}: {formatTokens(tokens.inputTokens)}</p>
+                            <p className="text-teal-400">{dict.chart.output}: {formatTokens(tokens.outputTokens)}</p>
                             <p className="text-text-dim">{tokens.messageCount}msg</p>
                           </div>
                         </div>
@@ -179,7 +177,7 @@ export default function WeekView({ weekStart, now, usage, windowUsageData }: Wee
                   );
                 })}
                 {resets.length === 0 && (
-                  <span className="text-sm text-text-dim italic">리셋 없음</span>
+                  <span className="text-sm text-text-dim italic">{dict.calendar.noResets}</span>
                 )}
               </div>
             </div>

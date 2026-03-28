@@ -8,6 +8,7 @@ import {
   isSameDay,
 } from "@/lib/resetTimes";
 import type { UsageCurrent, UsageHistoryEntry, WindowUsage } from "@/lib/types";
+import { useDict } from "@/i18n/context";
 
 const WINDOW_MS = 5 * 60 * 60 * 1000;
 
@@ -37,6 +38,8 @@ function getBarColorText(pct: number): string {
 }
 
 export default function UpcomingResets({ now, usage, history, windowUsageData }: RecentWindowsProps) {
+  const dict = useDict();
+  const locale = dict.locale;
   const currentWindowStart = getWindowStart(now);
 
   const windows = useMemo(() => {
@@ -49,7 +52,6 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
     return result;
   }, [currentWindowStart]);
 
-  // statusline 이력 → 윈도우별 peak %
   const statuslineUsage = useMemo(() => {
     const map = new Map<number, number>();
     for (const entry of history) {
@@ -63,7 +65,6 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
     return map;
   }, [history]);
 
-  // JSONL 트랜스크립트 → 윈도우별 토큰
   const tokenUsage = useMemo(() => {
     const map = new Map<number, WindowUsage>();
     for (const w of windowUsageData) {
@@ -72,7 +73,6 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
     return map;
   }, [windowUsageData]);
 
-  // 토큰 바 비율 계산용 max
   const maxTokens = useMemo(() => {
     let max = 0;
     for (const w of windowUsageData) {
@@ -86,7 +86,7 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
   return (
     <div className="rounded-2xl bg-surface border border-border p-5 md:p-6">
       <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider mb-4">
-        최근 리셋
+        {dict.resets.title}
       </h3>
       <div className="space-y-1.5">
         {windows.map(({ start, end, offset }) => {
@@ -94,7 +94,6 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
           const isPast = offset < 0;
           const isNextDay = !isSameDay(start, now);
 
-          // 실시간 사용률 (statusline)
           let pct: number | null = null;
           if (isCurrent && currentLivePct !== null) {
             pct = currentLivePct;
@@ -102,7 +101,6 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
             pct = statuslineUsage.get(start.getTime()) ?? null;
           }
 
-          // JSONL 토큰 데이터
           const tokens = (isPast || isCurrent) ? tokenUsage.get(start.getTime()) : null;
           const totalTokens = tokens ? tokens.inputTokens + tokens.outputTokens : 0;
 
@@ -121,7 +119,6 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
                     : "p-2.5 px-3 opacity-60"
               }`}
             >
-              {/* 상단: 시간 + 수치 */}
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   {isCurrent && (
@@ -130,10 +127,10 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
                   <span className={`font-mono text-sm font-medium ${
                     isCurrent ? "text-primary-light" : isPast ? "text-text-secondary" : "text-text-dim"
                   }`}>
-                    {formatTime(start)} — {formatTime(end)}
+                    {formatTime(start, locale)} — {formatTime(end, locale)}
                   </span>
                   {isNextDay && (
-                    <span className="text-[10px] text-text-dim">{formatDate(start)}</span>
+                    <span className="text-[10px] text-text-dim">{formatDate(start, locale)}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
@@ -148,15 +145,13 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
                     </span>
                   )}
                   {isCurrent && elapsed !== null && (
-                    <span className="text-[10px] text-text-dim">경과 {elapsed}%</span>
+                    <span className="text-[10px] text-text-dim">{dict.resets.elapsed} {elapsed}%</span>
                   )}
                 </div>
               </div>
 
-              {/* 바 (과거 + 현재) */}
               {(isPast || isCurrent) && (
                 <div className="space-y-1">
-                  {/* 사용률 바 (statusline) */}
                   {pct !== null && (
                     <div className="h-1.5 bg-surface-light rounded-full overflow-hidden">
                       <div
@@ -165,7 +160,6 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
                       />
                     </div>
                   )}
-                  {/* 토큰 바 (JSONL) */}
                   {tokens ? (
                     <div className="h-1.5 bg-surface-light rounded-full overflow-hidden flex">
                       <div
@@ -187,11 +181,11 @@ export default function UpcomingResets({ now, usage, history, windowUsageData }:
         })}
       </div>
 
-      {/* 범례 */}
+      {/* Legend */}
       <div className="flex items-center gap-3 mt-3 text-[9px] text-text-dim">
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-primary inline-block" /> 사용률</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-accent/60 inline-block" /> 입력</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-teal-500/60 inline-block" /> 출력</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-primary inline-block" /> {dict.resets.usageRate}</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-accent/60 inline-block" /> {dict.resets.input}</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-teal-500/60 inline-block" /> {dict.resets.output}</span>
       </div>
     </div>
   );

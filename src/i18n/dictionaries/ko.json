@@ -1,0 +1,82 @@
+{
+  "locale": "ko-KR",
+  "meta": {
+    "title": "Claude Code Reset Timer",
+    "description": "Claude Code 사용량 한도 리셋 타이머 대시보드"
+  },
+  "header": {
+    "subtitle": "5시간 / 7일 사용량 한도 리셋 스케줄 대시보드",
+    "receiving": "데이터 수신 중",
+    "refresh": "갱신"
+  },
+  "nav": {
+    "week": "주간",
+    "month": "월간",
+    "prev": "이전",
+    "today": "오늘",
+    "next": "다음"
+  },
+  "status": {
+    "available": "여유",
+    "inUse": "사용 중",
+    "caution": "주의",
+    "danger": "위험"
+  },
+  "fiveHour": {
+    "title": "5시간 윈도우",
+    "usage": "사용량",
+    "elapsed": "경과",
+    "untilReset": "리셋까지",
+    "start": "시작",
+    "reset": "리셋"
+  },
+  "sevenDay": {
+    "title": "7일 윈도우",
+    "daysElapsed": "/7일 경과",
+    "untilReset": "리셋까지",
+    "actualUsage": "실제 사용량",
+    "elapsed": "경과",
+    "day1": "1일",
+    "day7": "7일"
+  },
+  "chart": {
+    "title": "사용량 추이",
+    "empty": "Claude Code 세션에서 데이터가 수집되면 여기에 표시됩니다",
+    "input": "입력",
+    "output": "출력",
+    "usageRate": "사용률"
+  },
+  "session": {
+    "title": "세션 이력",
+    "sessions": "세션",
+    "input": "입력",
+    "cache": "캐시",
+    "output": "출력",
+    "apiCost": "API 환산",
+    "noData": "세션 데이터 없음",
+    "day": "일"
+  },
+  "resets": {
+    "title": "최근 리셋",
+    "elapsed": "경과",
+    "usageRate": "사용률",
+    "input": "입력",
+    "output": "출력"
+  },
+  "calendar": {
+    "days": ["월", "화", "수", "목", "금", "토", "일"],
+    "noResets": "리셋 없음"
+  },
+  "footer": {
+    "cycle": "리셋 주기: 5시간 / 7일 이중 윈도우",
+    "connected": "Statusline 데이터 연동 중",
+    "default": "기본 패턴 사용 중 (Claude Code 세션 시작 시 자동 보정)"
+  },
+  "time": {
+    "day": "일",
+    "hour": "시간",
+    "minute": "분",
+    "second": "초",
+    "lessThan1Min": "<1분"
+  }
+}

@@ -8,6 +8,7 @@ import {
   formatRemainingLong,
 } from "@/lib/resetTimes";
 import type { UsageCurrent } from "@/lib/types";
+import { useDict } from "@/i18n/context";
 
 interface WeeklyStatusProps {
   now: Date;
@@ -15,6 +16,8 @@ interface WeeklyStatusProps {
 }
 
 export default function WeeklyStatus({ now, usage }: WeeklyStatusProps) {
+  const dict = useDict();
+  const locale = dict.locale;
   const window = getCurrentWeeklyWindow(now);
   const timeProgress = getWeeklyWindowProgress(now);
   const remaining = getTimeUntilWeeklyReset(now);
@@ -46,30 +49,30 @@ export default function WeeklyStatus({ now, usage }: WeeklyStatusProps) {
         <div className="flex items-center gap-2">
           <div className={`w-2.5 h-2.5 rounded-full animate-pulse ${hasRealData ? "bg-teal-500" : "bg-amber-500"}`} />
           <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-            7일 윈도우
+            {dict.sevenDay.title}
           </h3>
           {hasRealData && (
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-400 font-medium">LIVE</span>
           )}
         </div>
         <span className="text-xs font-mono text-text-dim">
-          {elapsedDays}/7일 경과
+          {elapsedDays}{dict.sevenDay.daysElapsed}
         </span>
       </div>
 
       {/* Countdown */}
       <div className="mb-4">
-        <p className="text-xs text-text-secondary mb-1">리셋까지</p>
+        <p className="text-xs text-text-secondary mb-1">{dict.sevenDay.untilReset}</p>
         <p className="text-2xl font-mono font-bold tracking-tight text-text">
-          {formatRemainingLong(remaining)}
+          {formatRemainingLong(remaining, locale)}
         </p>
       </div>
 
-      {/* 실제 사용량 (데이터 있을 때) */}
+      {/* Actual usage */}
       {hasRealData && (
         <div className="mb-3">
           <div className="flex justify-between text-[10px] text-text-dim mb-1.5">
-            <span>실제 사용량</span>
+            <span>{dict.sevenDay.actualUsage}</span>
             <span className={`font-semibold ${getStatusColor(usedPct!)}`}>{usedPct}%</span>
           </div>
           <div className="h-2.5 bg-surface-light rounded-full overflow-hidden">
@@ -81,11 +84,11 @@ export default function WeeklyStatus({ now, usage }: WeeklyStatusProps) {
         </div>
       )}
 
-      {/* 시간 경과 */}
+      {/* Time elapsed */}
       <div className="mb-4">
         <div className="flex justify-between text-[10px] text-text-dim mb-1.5">
-          <span>{formatDateTime(window.start)}</span>
-          <span>{hasRealData ? `경과 ${timePct}%` : `${timePct}%`}</span>
+          <span>{formatDateTime(window.start, locale)}</span>
+          <span>{hasRealData ? `${dict.sevenDay.elapsed} ${timePct}%` : `${timePct}%`}</span>
         </div>
         <div className="h-2 bg-surface-light rounded-full overflow-hidden">
           <div
@@ -97,7 +100,7 @@ export default function WeeklyStatus({ now, usage }: WeeklyStatusProps) {
         </div>
         <div className="flex justify-end mt-1">
           <span className="text-[10px] text-text-dim">
-            {formatDateTime(window.end)}
+            {formatDateTime(window.end, locale)}
           </span>
         </div>
       </div>
@@ -118,8 +121,8 @@ export default function WeeklyStatus({ now, usage }: WeeklyStatusProps) {
         ))}
       </div>
       <div className="flex justify-between mt-1">
-        <span className="text-[9px] text-text-dim">1일</span>
-        <span className="text-[9px] text-text-dim">7일</span>
+        <span className="text-[9px] text-text-dim">{dict.sevenDay.day1}</span>
+        <span className="text-[9px] text-text-dim">{dict.sevenDay.day7}</span>
       </div>
     </div>
   );

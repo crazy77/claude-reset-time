@@ -8,6 +8,7 @@ import {
   getWindowStart,
 } from "@/lib/resetTimes";
 import type { WindowUsage } from "@/lib/types";
+import { useDict } from "@/i18n/context";
 
 interface MonthViewProps {
   year: number;
@@ -16,8 +17,6 @@ interface MonthViewProps {
   windowUsageData: WindowUsage[];
 }
 
-const DAY_HEADERS = ["월", "화", "수", "목", "금", "토", "일"];
-
 function formatTokens(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
@@ -25,6 +24,10 @@ function formatTokens(n: number): string {
 }
 
 export default function MonthView({ year, month, now, windowUsageData }: MonthViewProps) {
+  const dict = useDict();
+  const locale = dict.locale;
+  const DAY_HEADERS = dict.calendar.days;
+
   const calendarDays = useMemo(() => {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
@@ -44,14 +47,12 @@ export default function MonthView({ year, month, now, windowUsageData }: MonthVi
 
   const currentWindowStart = getWindowStart(now);
 
-  // JSONL 토큰 맵
   const tokenMap = useMemo(() => {
     const map = new Map<number, WindowUsage>();
     for (const w of windowUsageData) map.set(w.windowStart, w);
     return map;
   }, [windowUsageData]);
 
-  // 날짜별 총 토큰 집계
   const dayTokens = useMemo(() => {
     const map = new Map<string, number>();
     for (const w of windowUsageData) {
@@ -126,7 +127,7 @@ export default function MonthView({ year, month, now, windowUsageData }: MonthVi
                 )}
               </div>
 
-              {/* 리셋 시각 */}
+              {/* Reset times */}
               <div className="flex flex-wrap gap-0.5">
                 {day.resets.map((reset, ri) => {
                   const isCurrentReset = reset.getTime() === currentWindowStart.getTime();
@@ -145,7 +146,7 @@ export default function MonthView({ year, month, now, windowUsageData }: MonthVi
                               ? "text-text-dim/60"
                               : "text-text-secondary"
                       }`}
-                      title={tokens ? `${formatTime(reset)} | 입력: ${formatTokens(tokens.inputTokens)} 출력: ${formatTokens(tokens.outputTokens)} | ${tokens.messageCount}msg` : formatTime(reset)}
+                      title={tokens ? `${formatTime(reset, locale)} | ${dict.chart.input}: ${formatTokens(tokens.inputTokens)} ${dict.chart.output}: ${formatTokens(tokens.outputTokens)} | ${tokens.messageCount}msg` : formatTime(reset, locale)}
                     >
                       {reset.getHours().toString().padStart(2, "0")}
                     </span>
@@ -153,7 +154,7 @@ export default function MonthView({ year, month, now, windowUsageData }: MonthVi
                 })}
               </div>
 
-              {/* 날짜 토큰 바 */}
+              {/* Day token bar */}
               {dayTotal > 0 && (
                 <div className="mt-1 h-1 bg-surface-light rounded-full overflow-hidden">
                   <div

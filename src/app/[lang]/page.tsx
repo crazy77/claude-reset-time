@@ -10,10 +10,12 @@ import UsageChart from "@/components/UsageChart";
 import SessionHistory from "@/components/SessionHistory";
 import { getWeekRange, getMonthRange, calibrateFromResetsAt } from "@/lib/resetTimes";
 import { useUsageCurrent, useUsageHistory, useWindowUsage } from "@/hooks/useUsageData";
+import { useDict } from "@/i18n/context";
 
 type ViewMode = "week" | "month";
 
 export default function Home() {
+  const dict = useDict();
   const [now, setNow] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("week");
   const [viewDate, setViewDate] = useState(new Date());
@@ -21,14 +23,13 @@ export default function Home() {
 
   const { data: usage, lastUpdated } = useUsageCurrent();
   const history = useUsageHistory(48);
-  const windowUsageData = useWindowUsage(24 * 35); // 약 5주
+  const windowUsageData = useWindowUsage(24 * 35);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // resets_at으로 epoch 자동 보정
   useEffect(() => {
     if (usage?.rate_limits) {
       calibrateFromResetsAt(
@@ -61,16 +62,18 @@ export default function Home() {
   const weekRange = getWeekRange(viewDate);
   const monthRange = getMonthRange(viewDate);
 
+  const locale = dict.locale;
+
   const getViewTitle = () => {
     if (viewMode === "week") {
       const start = weekRange.start;
       const end = new Date(weekRange.end);
       end.setDate(end.getDate() - 1);
-      const startStr = start.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
-      const endStr = end.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
+      const startStr = start.toLocaleDateString(locale, { month: "short", day: "numeric" });
+      const endStr = end.toLocaleDateString(locale, { month: "short", day: "numeric" });
       return `${startStr} — ${endStr}`;
     }
-    return viewDate.toLocaleDateString("ko-KR", { year: "numeric", month: "long" });
+    return viewDate.toLocaleDateString(locale, { year: "numeric", month: "long" });
   };
 
   const isCurrentPeriod = () => {
@@ -98,7 +101,7 @@ export default function Home() {
                 Claude Code Reset Timer
               </h1>
               <p className="text-sm text-text-secondary">
-                5시간 / 7일 사용량 한도 리셋 스케줄 대시보드
+                {dict.header.subtitle}
               </p>
             </div>
           </div>
@@ -106,10 +109,10 @@ export default function Home() {
             <div className="text-right">
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                <span className="text-xs text-text-secondary">데이터 수신 중</span>
+                <span className="text-xs text-text-secondary">{dict.header.receiving}</span>
               </div>
               <span className="text-[10px] text-text-dim">
-                {lastUpdated.toLocaleTimeString("ko-KR")} 갱신
+                {lastUpdated.toLocaleTimeString(locale)} {dict.header.refresh}
               </span>
             </div>
           )}
@@ -144,7 +147,7 @@ export default function Home() {
                 : "text-text-secondary hover:text-text"
             }`}
           >
-            주간
+            {dict.nav.week}
           </button>
           <button
             onClick={() => setViewMode("month")}
@@ -154,7 +157,7 @@ export default function Home() {
                 : "text-text-secondary hover:text-text"
             }`}
           >
-            월간
+            {dict.nav.month}
           </button>
         </div>
 
@@ -162,7 +165,7 @@ export default function Home() {
           <button
             onClick={() => navigate(-1)}
             className="w-9 h-9 rounded-lg bg-surface border border-border flex items-center justify-center text-text-secondary hover:text-text hover:border-border-light transition-colors"
-            aria-label="이전"
+            aria-label={dict.nav.prev}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
@@ -176,12 +179,12 @@ export default function Home() {
                 : "bg-surface border border-border text-text-secondary hover:text-text hover:border-border-light"
             }`}
           >
-            오늘
+            {dict.nav.today}
           </button>
           <button
             onClick={() => navigate(1)}
             className="w-9 h-9 rounded-lg bg-surface border border-border flex items-center justify-center text-text-secondary hover:text-text hover:border-border-light transition-colors"
-            aria-label="다음"
+            aria-label={dict.nav.next}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6" />
@@ -210,8 +213,8 @@ export default function Home() {
       {/* Footer */}
       <footer className="mt-8 text-center">
         <p className="text-xs text-text-dim">
-          리셋 주기: 5시간 / 7일 이중 윈도우
-          {usage ? " · Statusline 데이터 연동 중" : " · 기본 패턴 사용 중 (Claude Code 세션 시작 시 자동 보정)"}
+          {dict.footer.cycle}
+          {usage ? ` · ${dict.footer.connected}` : ` · ${dict.footer.default}`}
         </p>
       </footer>
     </main>

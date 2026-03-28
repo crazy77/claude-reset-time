@@ -1,0 +1,82 @@
+{
+  "locale": "en-US",
+  "meta": {
+    "title": "Claude Code Reset Timer",
+    "description": "Claude Code usage limit reset timer dashboard"
+  },
+  "header": {
+    "subtitle": "5-hour / 7-day usage limit reset schedule dashboard",
+    "receiving": "Receiving data",
+    "refresh": "updated"
+  },
+  "nav": {
+    "week": "Week",
+    "month": "Month",
+    "prev": "Previous",
+    "today": "Today",
+    "next": "Next"
+  },
+  "status": {
+    "available": "Available",
+    "inUse": "In Use",
+    "caution": "Caution",
+    "danger": "Danger"
+  },
+  "fiveHour": {
+    "title": "5-Hour Window",
+    "usage": "Usage",
+    "elapsed": "Elapsed",
+    "untilReset": "Until Reset",
+    "start": "Start",
+    "reset": "Reset"
+  },
+  "sevenDay": {
+    "title": "7-Day Window",
+    "daysElapsed": "/7d elapsed",
+    "untilReset": "Until Reset",
+    "actualUsage": "Actual Usage",
+    "elapsed": "elapsed",
+    "day1": "Day 1",
+    "day7": "Day 7"
+  },
+  "chart": {
+    "title": "Usage Trend",
+    "empty": "Data will appear here once collected from Claude Code sessions",
+    "input": "Input",
+    "output": "Output",
+    "usageRate": "Usage %"
+  },
+  "session": {
+    "title": "Session History",
+    "sessions": "Sessions",
+    "input": "Input",
+    "cache": "Cache",
+    "output": "Output",
+    "apiCost": "API Est.",
+    "noData": "No session data",
+    "day": "d"
+  },
+  "resets": {
+    "title": "Recent Resets",
+    "elapsed": "elapsed",
+    "usageRate": "Usage %",
+    "input": "Input",
+    "output": "Output"
+  },
+  "calendar": {
+    "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "noResets": "No resets"
+  },
+  "footer": {
+    "cycle": "Reset cycle: 5-hour / 7-day dual window",
+    "connected": "Statusline data connected",
+    "default": "Using default pattern (auto-calibrated on Claude Code session start)"
+  },
+  "time": {
+    "day": "d",
+    "hour": "h",
+    "minute": "m",
+    "second": "s",
+    "lessThan1Min": "<1m"
+  }
+}

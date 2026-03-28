@@ -9,12 +9,15 @@ import {
   formatRemaining,
 } from "@/lib/resetTimes";
 import type { UsageCurrent } from "@/lib/types";
+import { useDict } from "@/i18n/context";
 
 interface CurrentStatusProps {
   usage: UsageCurrent | null;
 }
 
 export default function CurrentStatus({ usage }: CurrentStatusProps) {
+  const dict = useDict();
+  const locale = dict.locale;
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -39,10 +42,10 @@ export default function CurrentStatus({ usage }: CurrentStatusProps) {
   };
 
   const getStatusLabel = (pct: number) => {
-    if (pct < 30) return "여유";
-    if (pct < 60) return "사용 중";
-    if (pct < 85) return "주의";
-    return "위험";
+    if (pct < 30) return dict.status.available;
+    if (pct < 60) return dict.status.inUse;
+    if (pct < 85) return dict.status.caution;
+    return dict.status.danger;
   };
 
   const getStatusColor = (pct: number) => {
@@ -62,7 +65,7 @@ export default function CurrentStatus({ usage }: CurrentStatusProps) {
           <div className="flex items-center gap-3">
             <div className={`w-3 h-3 rounded-full animate-pulse ${hasRealData ? "bg-success" : "bg-warning"}`} />
             <h2 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
-              5시간 윈도우
+              {dict.fiveHour.title}
             </h2>
             {hasRealData && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/10 text-success font-medium">LIVE</span>
@@ -73,25 +76,25 @@ export default function CurrentStatus({ usage }: CurrentStatusProps) {
           </span>
         </div>
 
-        {/* Hero: 사용량 + 카운트다운 */}
+        {/* Hero */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="text-center">
             <p className="text-text-secondary text-sm mb-2">
-              {hasRealData ? "사용량" : "경과"}
+              {hasRealData ? dict.fiveHour.usage : dict.fiveHour.elapsed}
             </p>
             <p className={`text-4xl md:text-5xl font-mono font-bold tracking-tight ${getStatusColor(displayPct)}`}>
               {displayPct}%
             </p>
           </div>
           <div className="text-center">
-            <p className="text-text-secondary text-sm mb-2">리셋까지</p>
+            <p className="text-text-secondary text-sm mb-2">{dict.fiveHour.untilReset}</p>
             <p className="text-4xl md:text-5xl font-mono font-bold tracking-tighter text-text">
-              {formatRemaining(remaining)}
+              {formatRemaining(remaining, locale)}
             </p>
           </div>
         </div>
 
-        {/* 사용량 바 */}
+        {/* Progress bar */}
         <div className="mb-3">
           <div className="h-4 bg-surface-light rounded-full overflow-hidden">
             <div
@@ -103,13 +106,13 @@ export default function CurrentStatus({ usage }: CurrentStatusProps) {
           </div>
         </div>
 
-        {/* 시간 경과 바 (실 데이터 있을 때만 별도 표시) */}
+        {/* Time elapsed bar */}
         {hasRealData && (
           <div className="mb-6">
             <div className="flex justify-between text-xs text-text-secondary mb-1">
-              <span>{formatTime(window.start)}</span>
-              <span className="font-mono">경과 {timePct}%</span>
-              <span>{formatTime(window.end)}</span>
+              <span>{formatTime(window.start, locale)}</span>
+              <span className="font-mono">{dict.fiveHour.elapsed} {timePct}%</span>
+              <span>{formatTime(window.end, locale)}</span>
             </div>
             <div className="h-2 bg-surface-light rounded-full overflow-hidden">
               <div
@@ -120,23 +123,22 @@ export default function CurrentStatus({ usage }: CurrentStatusProps) {
           </div>
         )}
 
-        {/* 실 데이터 없을 때 시간 표시 */}
         {!hasRealData && (
           <div className="flex justify-between text-xs text-text-secondary mb-6 mt-1">
-            <span>{formatTime(window.start)}</span>
-            <span>{formatTime(window.end)}</span>
+            <span>{formatTime(window.start, locale)}</span>
+            <span>{formatTime(window.end, locale)}</span>
           </div>
         )}
 
-        {/* 시작/리셋 시각 */}
+        {/* Start/Reset times */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-surface-light/50 rounded-xl p-3 text-center">
-            <p className="text-[10px] text-text-secondary mb-1">시작</p>
-            <p className="text-base font-mono font-semibold">{formatTime(window.start)}</p>
+            <p className="text-[10px] text-text-secondary mb-1">{dict.fiveHour.start}</p>
+            <p className="text-base font-mono font-semibold">{formatTime(window.start, locale)}</p>
           </div>
           <div className="bg-surface-light/50 rounded-xl p-3 text-center">
-            <p className="text-[10px] text-text-secondary mb-1">리셋</p>
-            <p className="text-base font-mono font-semibold">{formatTime(window.end)}</p>
+            <p className="text-[10px] text-text-secondary mb-1">{dict.fiveHour.reset}</p>
+            <p className="text-base font-mono font-semibold">{formatTime(window.end, locale)}</p>
           </div>
         </div>
       </div>

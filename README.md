@@ -1,5 +1,7 @@
 # Claude Code Reset Timer
 
+**한국어** | [English](README.en.md)
+
 Claude Code의 5시간 / 7일 사용량 한도 리셋 스케줄을 시각화하는 대시보드.
 로컬 Docker에서 운영하며, Claude Code statusline + JSONL 트랜스크립트를 통해 사용량을 수집합니다.
 
@@ -85,6 +87,14 @@ npm run dev    # http://localhost:3000
 
 </details>
 
+## 다국어 지원
+
+대시보드는 한국어와 영어를 지원합니다. URL 경로로 접근:
+- 한국어: `http://localhost:3456/ko`
+- 영어: `http://localhost:3456/en`
+
+브라우저의 `Accept-Language` 헤더에 따라 자동으로 언어가 감지됩니다.
+
 ## 아키텍처
 
 ```
@@ -129,7 +139,9 @@ Claude Code 세션
 ├── statusline.sh             # statusline 수집 스크립트
 └── src/
     ├── app/
-    │   ├── page.tsx           # 메인 대시보드
+    │   ├── [lang]/
+    │   │   ├── layout.tsx     # i18n 루트 레이아웃
+    │   │   └── page.tsx       # 메인 대시보드
     │   ├── api/
     │   │   ├── usage/
     │   │   │   ├── current/   # 실시간 사용률
@@ -147,6 +159,10 @@ Claude Code 세션
     │   └── MonthView.tsx       # 월간 캘린더 + 일별 토큰
     ├── hooks/
     │   └── useUsageData.ts     # API 폴링 훅
+    ├── i18n/
+    │   ├── dictionaries/       # ko.json, en.json
+    │   ├── context.tsx         # DictionaryProvider + useDict 훅
+    │   └── getDictionary.ts    # 서버사이드 사전 로더
     └── lib/
         ├── resetTimes.ts       # 리셋 시간 계산 + 자동 보정
         └── types.ts            # 타입 정의
