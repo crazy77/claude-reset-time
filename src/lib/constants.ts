@@ -16,9 +16,10 @@ export function getWindowStartMs(nowMs: number, windowMs: number, epochMs: numbe
   return epochMs + idx * windowMs;
 }
 
-/** resets_at (unix seconds)으로 실제 epoch 역산 */
+/** resets_at (unix seconds)으로 실제 epoch 역산 — 5분 단위로 반올림 */
 export function calibrateEpochFromResetsAt(resetsAtSec: number, windowMs: number): number {
-  const resetsAtMs = resetsAtSec * 1000;
+  const roundedSec = Math.round(resetsAtSec / 300) * 300; // 5분 단위 반올림
+  const resetsAtMs = roundedSec * 1000;
   const elapsed = resetsAtMs - DEFAULT_EPOCH_MS;
   const windows = Math.round(elapsed / windowMs);
   return resetsAtMs - windows * windowMs;

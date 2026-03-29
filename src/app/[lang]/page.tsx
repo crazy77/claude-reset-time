@@ -17,9 +17,9 @@ type ViewMode = "week" | "month";
 
 export default function Home() {
   const dict = useDict();
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("week");
-  const [viewDate, setViewDate] = useState(new Date());
+  const [viewDate, setViewDate] = useState<Date | null>(null);
   const [slideDir, setSlideDir] = useState<"left" | "right">("left");
 
   const { data: usage, lastUpdated } = useUsageCurrent();
@@ -27,6 +27,8 @@ export default function Home() {
   const windowUsageData = useWindowUsage(24 * 35);
 
   useEffect(() => {
+    setNow(new Date());
+    setViewDate(new Date());
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -44,7 +46,7 @@ export default function Home() {
     (direction: -1 | 1) => {
       setSlideDir(direction === 1 ? "left" : "right");
       setViewDate((prev) => {
-        const next = new Date(prev);
+        const next = new Date(prev!);
         if (viewMode === "week") {
           next.setDate(next.getDate() + direction * 7);
         } else {
@@ -59,6 +61,14 @@ export default function Home() {
   const goToToday = useCallback(() => {
     setViewDate(new Date());
   }, []);
+
+  if (!now || !viewDate) {
+    return (
+      <main className="max-w-5xl mx-auto px-4 py-6 md:py-10 flex items-center justify-center min-h-screen">
+        <div className="text-text-dim text-sm">Loading...</div>
+      </main>
+    );
+  }
 
   const weekRange = getWeekRange(viewDate);
   const monthRange = getMonthRange(viewDate);

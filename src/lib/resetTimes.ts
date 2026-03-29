@@ -14,15 +14,15 @@ export function calibrateFromResetsAt(
   sevenDayResetsAt?: number
 ) {
   if (fiveHourResetsAt) {
-    const resetsAtMs = fiveHourResetsAt * 1000;
-    // resets_at은 현재 윈도우 끝 = 다음 윈도우 시작
-    // epoch는 resetsAt에서 5시간의 정수배를 빼서 구함
+    const roundedSec = Math.round(fiveHourResetsAt / 300) * 300;
+    const resetsAtMs = roundedSec * 1000;
     const elapsed = resetsAtMs - DEFAULT_EPOCH_MS;
     const windows = Math.round(elapsed / WINDOW_5H_MS);
     calibratedEpoch5h = resetsAtMs - windows * WINDOW_5H_MS;
   }
   if (sevenDayResetsAt) {
-    const resetsAtMs = sevenDayResetsAt * 1000;
+    const roundedSec = Math.round(sevenDayResetsAt / 300) * 300;
+    const resetsAtMs = roundedSec * 1000;
     const elapsed = resetsAtMs - DEFAULT_EPOCH_MS;
     const windows = Math.round(elapsed / WINDOW_7D_MS);
     calibratedEpoch7d = resetsAtMs - windows * WINDOW_7D_MS;

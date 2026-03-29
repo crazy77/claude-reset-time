@@ -18,9 +18,10 @@ interface CurrentStatusProps {
 export default function CurrentStatus({ usage }: CurrentStatusProps) {
   const dict = useDict();
   const locale = dict.locale;
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
+    setNow(new Date());
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
