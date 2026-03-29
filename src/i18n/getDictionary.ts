@@ -5,7 +5,7 @@ const dictionaries = {
 
 export type Locale = keyof typeof dictionaries;
 
-export const locales: Locale[] = ["ko", "en"];
+export const locales = Object.keys(dictionaries) as Locale[];
 export const defaultLocale: Locale = "ko";
 
 export const hasLocale = (locale: string): locale is Locale =>

@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import { join } from "path";
-
-const DATA_DIR = process.env.CLAUDE_DATA_DIR || join(process.env.HOME || "/root", ".claude");
+import { DATA_DIR, parseIntParam } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const hours = parseInt(searchParams.get("hours") || "24", 10);
+    const hours = parseIntParam(searchParams.get("hours"), 24, 1, 720);
     const cutoff = Date.now() / 1000 - hours * 3600;
 
     const filePath = join(DATA_DIR, "usage-history.jsonl");
@@ -28,6 +27,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(entries);
   } catch {
-    return NextResponse.json([], { status: 200 });
+    return NextResponse.json([]);
   }
 }

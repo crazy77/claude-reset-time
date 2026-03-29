@@ -1,6 +1,8 @@
 export interface RateLimitWindow {
   used_percentage: number;
   resets_at: number;
+  estimated?: boolean;  // true = statusline 아닌 JSONL 역산값
+  synced?: boolean;     // true = claude.ai 스크래핑 데이터
 }
 
 export interface UsageCurrent {
@@ -42,6 +44,7 @@ export interface UsageHistoryEntry {
 export interface WindowUsage {
   windowStart: number;
   inputTokens: number;
+  cacheTokens: number;
   outputTokens: number;
   messageCount: number;
 }

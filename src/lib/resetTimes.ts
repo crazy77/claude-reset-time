@@ -2,9 +2,7 @@
 // 기본 패턴: 매 5시간 / 7일 리셋
 // statusline의 resets_at이 있으면 실제 서버 기준으로 자동 보정
 
-const DEFAULT_EPOCH = new Date("2026-03-29T01:00:00+09:00").getTime();
-const WINDOW_5H_MS = 5 * 60 * 60 * 1000;
-const WINDOW_7D_MS = 7 * 24 * 60 * 60 * 1000;
+import { DEFAULT_EPOCH_MS, WINDOW_5H_MS, WINDOW_7D_MS } from "./constants";
 
 // 동적 epoch: resets_at으로부터 역산된 epoch를 저장
 let calibratedEpoch5h: number | null = null;
@@ -19,13 +17,13 @@ export function calibrateFromResetsAt(
     const resetsAtMs = fiveHourResetsAt * 1000;
     // resets_at은 현재 윈도우 끝 = 다음 윈도우 시작
     // epoch는 resetsAt에서 5시간의 정수배를 빼서 구함
-    const elapsed = resetsAtMs - DEFAULT_EPOCH;
+    const elapsed = resetsAtMs - DEFAULT_EPOCH_MS;
     const windows = Math.round(elapsed / WINDOW_5H_MS);
     calibratedEpoch5h = resetsAtMs - windows * WINDOW_5H_MS;
   }
   if (sevenDayResetsAt) {
     const resetsAtMs = sevenDayResetsAt * 1000;
-    const elapsed = resetsAtMs - DEFAULT_EPOCH;
+    const elapsed = resetsAtMs - DEFAULT_EPOCH_MS;
     const windows = Math.round(elapsed / WINDOW_7D_MS);
     calibratedEpoch7d = resetsAtMs - windows * WINDOW_7D_MS;
   }
@@ -40,11 +38,11 @@ export function isCalibrated(): { fiveHour: boolean; sevenDay: boolean } {
 }
 
 function getEpoch5h(): number {
-  return calibratedEpoch5h ?? DEFAULT_EPOCH;
+  return calibratedEpoch5h ?? DEFAULT_EPOCH_MS;
 }
 
 function getEpoch7d(): number {
-  return calibratedEpoch7d ?? DEFAULT_EPOCH;
+  return calibratedEpoch7d ?? DEFAULT_EPOCH_MS;
 }
 
 // ========== 타입 ==========

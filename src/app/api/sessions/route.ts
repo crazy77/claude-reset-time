@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
-
-const DATA_DIR = process.env.CLAUDE_DATA_DIR || join(process.env.HOME || "/root", ".claude");
-const PROJECTS_DIR = join(DATA_DIR, "projects");
+import { PROJECTS_DIR, parseIntParam } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -148,29 +146,32 @@ async function parseSession(filePath: string, project: string): Promise<SessionS
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const days = parseInt(searchParams.get("days") || "7", 10);
+    const days = parseIntParam(searchParams.get("days"), 7, 1, 90);
     const cutoff = new Date(Date.now() - days * 86400 * 1000).toISOString();
 
     const projectDirs = await readdir(PROJECTS_DIR).catch(() => []);
-    const sessions: SessionSummary[] = [];
 
-    for (const projectDir of projectDirs) {
-      const projectPath = join(PROJECTS_DIR, projectDir);
-      const files = await readdir(projectPath).catch(() => []);
+    // 프로젝트별 파일 목록을 병렬로 수집
+    const projectFiles = await Promise.all(
+      projectDirs.map(async (projectDir) => {
+        const projectPath = join(PROJECTS_DIR, projectDir);
+        const files = await readdir(projectPath).catch(() => [] as string[]);
+        return files
+          .filter((f) => f.endsWith(".jsonl") && !f.includes("/"))
+          .map((f) => ({ filePath: join(projectPath, f), project: projectDir }));
+      })
+    );
 
-      for (const file of files) {
-        if (!file.endsWith(".jsonl") || file.includes("/")) continue;
-        const filePath = join(projectPath, file);
-        const session = await parseSession(filePath, projectDir);
-        if (session && session.startedAt >= cutoff) {
-          sessions.push(session);
-        }
-      }
-    }
+    // 세션 파일을 병렬로 파싱
+    const results = await Promise.all(
+      projectFiles.flat().map(({ filePath, project }) => parseSession(filePath, project))
+    );
 
-    sessions.sort((a, b) => b.startedAt.localeCompare(a.startedAt));
+    const sessions = results
+      .filter((s): s is SessionSummary => s !== null && s.startedAt >= cutoff)
+      .sort((a, b) => b.startedAt.localeCompare(a.startedAt));
     return NextResponse.json(sessions);
   } catch {
-    return NextResponse.json([], { status: 200 });
+    return NextResponse.json([]);
   }
 }
