@@ -43,6 +43,7 @@
     "title": "Usage Trend",
     "empty": "Data will appear here once collected from Claude Code sessions",
     "input": "Input",
+    "cache": "Cache",
     "output": "Output",
     "usageRate": "Usage %"
   },

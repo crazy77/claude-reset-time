@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { formatTokens } from "@/lib/format";
 import { useDict } from "@/i18n/context";
 
 interface Session {
@@ -18,12 +19,6 @@ interface Session {
   tools: string[];
   entrypoint: string;
   durationMin: number;
-}
-
-function formatTokens(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return n.toString();
 }
 
 function formatProjectName(raw: string): string {
@@ -209,17 +204,17 @@ export default function SessionHistory() {
               {/* Token bar */}
               <div className="h-1.5 bg-surface-light rounded-full overflow-hidden flex">
                 <div
-                  className="h-full bg-primary/70 transition-all duration-500"
+                  className="h-full bg-accent/60 transition-all duration-500"
                   style={{ width: `${getBarWidth(s.inputTokens)}%` }}
                   title={`${dict.session.input}: ${formatTokens(s.inputTokens)}`}
                 />
                 <div
-                  className="h-full bg-accent/50 transition-all duration-500"
+                  className="h-full bg-amber-500/60 transition-all duration-500"
                   style={{ width: `${getBarWidth(s.cacheCreationTokens)}%` }}
                   title={`${dict.session.cache}: ${formatTokens(s.cacheCreationTokens)}`}
                 />
                 <div
-                  className="h-full bg-teal-500/70 transition-all duration-500"
+                  className="h-full bg-teal-500/60 transition-all duration-500"
                   style={{ width: `${getBarWidth(s.outputTokens)}%` }}
                   title={`${dict.session.output}: ${formatTokens(s.outputTokens)}`}
                 />
@@ -233,15 +228,15 @@ export default function SessionHistory() {
       {sessions.length > 0 && (
         <div className="flex items-center gap-3 mt-3 text-[10px]">
           <div className="flex items-center gap-1">
-            <div className="w-2.5 h-2.5 rounded-sm bg-primary/70" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-accent/60" />
             <span className="text-text-dim">{dict.session.input}</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2.5 h-2.5 rounded-sm bg-accent/50" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-amber-500/60" />
             <span className="text-text-dim">{dict.session.cache}</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2.5 h-2.5 rounded-sm bg-teal-500/70" />
+            <div className="w-2.5 h-2.5 rounded-sm bg-teal-500/60" />
             <span className="text-text-dim">{dict.session.output}</span>
           </div>
           <span className="text-text-dim ml-1">|</span>

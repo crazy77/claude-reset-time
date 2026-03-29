@@ -24,6 +24,8 @@ export default function WeeklyStatus({ now, usage }: WeeklyStatusProps) {
 
   const sevenDay = usage?.rate_limits?.seven_day;
   const hasRealData = sevenDay !== undefined && sevenDay !== null;
+  const isEstimated = sevenDay?.estimated === true;
+  const isSynced = sevenDay?.synced === true;
   const usedPct = hasRealData ? Math.round(sevenDay.used_percentage) : null;
   const timePct = Math.round(timeProgress * 100);
 
@@ -51,8 +53,14 @@ export default function WeeklyStatus({ now, usage }: WeeklyStatusProps) {
           <h3 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
             {dict.sevenDay.title}
           </h3>
-          {hasRealData && (
+          {hasRealData && isSynced && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary-light font-medium">SYNC</span>
+          )}
+          {hasRealData && !isSynced && !isEstimated && (
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-400 font-medium">LIVE</span>
+          )}
+          {hasRealData && isEstimated && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-warning/10 text-warning font-medium">EST</span>
           )}
         </div>
         <span className="text-xs font-mono text-text-dim">

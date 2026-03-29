@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import type { UsageHistoryEntry, WindowUsage } from "@/lib/types";
 import { getWindowStart } from "@/lib/resetTimes";
+import { formatTokens } from "@/lib/format";
 import { useDict } from "@/i18n/context";
 
 const WINDOW_MS = 5 * 60 * 60 * 1000;
@@ -10,12 +11,6 @@ const WINDOW_MS = 5 * 60 * 60 * 1000;
 interface UsageChartProps {
   history: UsageHistoryEntry[];
   windowUsageData: WindowUsage[];
-}
-
-function formatTokens(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return n.toString();
 }
 
 export default function UsageChart({ history, windowUsageData }: UsageChartProps) {
@@ -56,6 +51,7 @@ export default function UsageChart({ history, windowUsageData }: UsageChartProps
         hour,
         isCurrent: i === 0,
         inputTokens: tokens?.inputTokens ?? 0,
+        cacheTokens: tokens?.cacheTokens ?? 0,
         outputTokens: tokens?.outputTokens ?? 0,
         messageCount: tokens?.messageCount ?? 0,
         fiveHourPct: pct?.fiveHour ?? null,
@@ -66,7 +62,7 @@ export default function UsageChart({ history, windowUsageData }: UsageChartProps
     return buckets;
   }, [history, windowUsageData, locale]);
 
-  const maxTokens = chartData.reduce((max, b) => Math.max(max, b.inputTokens + b.outputTokens), 0);
+  const maxTokens = chartData.reduce((max, b) => Math.max(max, b.inputTokens + b.cacheTokens + b.outputTokens), 0);
 
   const hasAnyData = chartData.some((b) => b.inputTokens > 0 || b.fiveHourPct !== null);
 
@@ -95,6 +91,10 @@ export default function UsageChart({ history, windowUsageData }: UsageChartProps
             <span className="text-text-secondary">{dict.chart.input}</span>
           </span>
           <span className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-sm bg-amber-500/70 inline-block" />
+            <span className="text-text-secondary">{dict.chart.cache}</span>
+          </span>
+          <span className="flex items-center gap-1">
             <span className="w-2.5 h-2.5 rounded-sm bg-teal-500/70 inline-block" />
             <span className="text-text-secondary">{dict.chart.output}</span>
           </span>
@@ -107,12 +107,12 @@ export default function UsageChart({ history, windowUsageData }: UsageChartProps
 
       {/* Chart */}
       <div className="relative h-40 flex items-end gap-1">
-        {chartData.map((bucket, idx) => {
-          const totalTokens = bucket.inputTokens + bucket.outputTokens;
+        {chartData.map((bucket) => {
+          const totalTokens = bucket.inputTokens + bucket.cacheTokens + bucket.outputTokens;
           const tokenHeight = maxTokens > 0 ? (totalTokens / maxTokens) * 100 : 0;
 
           return (
-            <div key={idx} className="flex-1 flex flex-col items-stretch relative group" style={{ height: "100%" }}>
+            <div key={bucket.windowStart} className="flex-1 flex flex-col items-stretch relative group" style={{ height: "100%" }}>
               {bucket.fiveHourPct !== null && (
                 <div
                   className="absolute w-2 h-2 rounded-full bg-primary left-1/2 -translate-x-1/2 z-10 ring-1 ring-primary/30"
@@ -130,11 +130,15 @@ export default function UsageChart({ history, windowUsageData }: UsageChartProps
                   <div className="h-full flex flex-col justify-end">
                     <div
                       className="bg-accent/60 hover:bg-accent/80 transition-colors"
-                      style={{ height: maxTokens > 0 ? `${(bucket.inputTokens / (totalTokens || 1)) * 100}%` : "0%" }}
+                      style={{ height: totalTokens > 0 ? `${(bucket.inputTokens / totalTokens) * 100}%` : "0%" }}
+                    />
+                    <div
+                      className="bg-amber-500/60 hover:bg-amber-500/80 transition-colors"
+                      style={{ height: totalTokens > 0 ? `${(bucket.cacheTokens / totalTokens) * 100}%` : "0%" }}
                     />
                     <div
                       className="bg-teal-500/60 hover:bg-teal-500/80 transition-colors"
-                      style={{ height: maxTokens > 0 ? `${(bucket.outputTokens / (totalTokens || 1)) * 100}%` : "0%" }}
+                      style={{ height: totalTokens > 0 ? `${(bucket.outputTokens / totalTokens) * 100}%` : "0%" }}
                     />
                   </div>
                 </div>
@@ -148,6 +152,7 @@ export default function UsageChart({ history, windowUsageData }: UsageChartProps
                     {totalTokens > 0 && (
                       <>
                         <p className="text-accent">{dict.chart.input}: {formatTokens(bucket.inputTokens)}</p>
+                        <p className="text-amber-400">{dict.chart.cache}: {formatTokens(bucket.cacheTokens)}</p>
                         <p className="text-teal-400">{dict.chart.output}: {formatTokens(bucket.outputTokens)}</p>
                         <p className="text-text-dim">{bucket.messageCount}msg</p>
                       </>
@@ -165,9 +170,9 @@ export default function UsageChart({ history, windowUsageData }: UsageChartProps
 
       {/* X axis */}
       <div className="flex justify-between mt-1.5">
-        {chartData.map((bucket, idx) => (
+        {chartData.map((bucket) => (
           <span
-            key={idx}
+            key={bucket.windowStart}
             className={`text-[8px] flex-1 text-center ${
               bucket.isCurrent ? "text-primary-light font-medium" : "text-text-dim"
             }`}

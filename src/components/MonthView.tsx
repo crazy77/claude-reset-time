@@ -8,6 +8,7 @@ import {
   getWindowStart,
 } from "@/lib/resetTimes";
 import type { WindowUsage } from "@/lib/types";
+import { formatTokens } from "@/lib/format";
 import { useDict } from "@/i18n/context";
 
 interface MonthViewProps {
@@ -15,12 +16,6 @@ interface MonthViewProps {
   month: number;
   now: Date;
   windowUsageData: WindowUsage[];
-}
-
-function formatTokens(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return n.toString();
 }
 
 export default function MonthView({ year, month, now, windowUsageData }: MonthViewProps) {
@@ -84,7 +79,7 @@ export default function MonthView({ year, month, now, windowUsageData }: MonthVi
       <div className="grid grid-cols-7">
         {calendarDays.map((day, idx) => {
           if (!day) {
-            return <div key={idx} className="min-h-[80px] md:min-h-[100px] border-b border-r border-border/50 bg-surface/50" />;
+            return <div key={`empty-${idx}`} className="min-h-[80px] md:min-h-[100px] border-b border-r border-border/50 bg-surface/50" />;
           }
 
           const isToday = isSameDay(day.date, now);
@@ -99,7 +94,7 @@ export default function MonthView({ year, month, now, windowUsageData }: MonthVi
 
           return (
             <div
-              key={idx}
+              key={day.date.getTime()}
               className={`min-h-[80px] md:min-h-[100px] border-b border-r border-border/50 p-1.5 transition-colors ${
                 isToday
                   ? "bg-window-current"
@@ -136,7 +131,7 @@ export default function MonthView({ year, month, now, windowUsageData }: MonthVi
 
                   return (
                     <span
-                      key={ri}
+                      key={reset.getTime()}
                       className={`text-[10px] md:text-xs font-mono px-1 py-0.5 rounded ${
                         isCurrentReset
                           ? "bg-primary text-white font-semibold"

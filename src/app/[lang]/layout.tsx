@@ -46,11 +46,17 @@ export default async function RootLayout({
 
   const dict = await getDictionary(lang);
 
+  const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`;
+
   return (
     <html
       lang={lang}
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="min-h-screen">
         <DictionaryProvider dictionary={dict}>{children}</DictionaryProvider>
       </body>

@@ -43,6 +43,7 @@
     "title": "사용량 추이",
     "empty": "Claude Code 세션에서 데이터가 수집되면 여기에 표시됩니다",
     "input": "입력",
+    "cache": "캐시",
     "output": "출력",
     "usageRate": "사용률"
   },

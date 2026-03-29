@@ -31,6 +31,8 @@ export default function CurrentStatus({ usage }: CurrentStatusProps) {
 
   const fiveHour = usage?.rate_limits?.five_hour;
   const hasRealData = fiveHour !== undefined && fiveHour !== null;
+  const isEstimated = fiveHour?.estimated === true;
+  const isSynced = fiveHour?.synced === true;
   const usedPct = hasRealData ? Math.round(fiveHour.used_percentage) : null;
   const timePct = Math.round(timeProgress * 100);
   const displayPct = usedPct ?? timePct;
@@ -67,8 +69,14 @@ export default function CurrentStatus({ usage }: CurrentStatusProps) {
             <h2 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
               {dict.fiveHour.title}
             </h2>
-            {hasRealData && (
+            {hasRealData && isSynced && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary-light font-medium">SYNC</span>
+            )}
+            {hasRealData && !isSynced && !isEstimated && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/10 text-success font-medium">LIVE</span>
+            )}
+            {hasRealData && isEstimated && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-warning/10 text-warning font-medium">EST</span>
             )}
           </div>
           <span className={`text-sm font-semibold ${getStatusColor(displayPct)}`}>
@@ -96,7 +104,7 @@ export default function CurrentStatus({ usage }: CurrentStatusProps) {
 
         {/* Progress bar */}
         <div className="mb-3">
-          <div className="h-4 bg-surface-light rounded-full overflow-hidden">
+          <div className="h-4 bg-surface-light rounded-full overflow-hidden" role="progressbar" aria-valuenow={displayPct} aria-valuemin={0} aria-valuemax={100} aria-label={hasRealData ? dict.fiveHour.usage : dict.fiveHour.elapsed}>
             <div
               className={`h-full rounded-full bg-linear-to-r ${getProgressColor(displayPct)} transition-all duration-1000 ease-out relative`}
               style={{ width: `${displayPct}%` }}

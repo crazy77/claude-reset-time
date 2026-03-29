@@ -8,6 +8,7 @@ import MonthView from "@/components/MonthView";
 import UpcomingResets from "@/components/UpcomingResets";
 import UsageChart from "@/components/UsageChart";
 import SessionHistory from "@/components/SessionHistory";
+import ThemeToggle from "@/components/ThemeToggle";
 import { getWeekRange, getMonthRange, calibrateFromResetsAt } from "@/lib/resetTimes";
 import { useUsageCurrent, useUsageHistory, useWindowUsage } from "@/hooks/useUsageData";
 import { useDict } from "@/i18n/context";
@@ -105,17 +106,20 @@ export default function Home() {
               </p>
             </div>
           </div>
-          {lastUpdated && (
-            <div className="text-right">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                <span className="text-xs text-text-secondary">{dict.header.receiving}</span>
+          <div className="flex items-center gap-3">
+            {lastUpdated && (
+              <div className="text-right">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                  <span className="text-xs text-text-secondary">{dict.header.receiving}</span>
+                </div>
+                <span className="text-[10px] text-text-dim">
+                  {lastUpdated.toLocaleTimeString(locale)} {dict.header.refresh}
+                </span>
               </div>
-              <span className="text-[10px] text-text-dim">
-                {lastUpdated.toLocaleTimeString(locale)} {dict.header.refresh}
-              </span>
-            </div>
-          )}
+            )}
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

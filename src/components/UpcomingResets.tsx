@@ -8,6 +8,7 @@ import {
   isSameDay,
 } from "@/lib/resetTimes";
 import type { UsageCurrent, UsageHistoryEntry, WindowUsage } from "@/lib/types";
+import { formatTokens, getBarColor, getBarColorText } from "@/lib/format";
 import { useDict } from "@/i18n/context";
 
 const WINDOW_MS = 5 * 60 * 60 * 1000;
@@ -17,24 +18,6 @@ interface RecentWindowsProps {
   usage: UsageCurrent | null;
   history: UsageHistoryEntry[];
   windowUsageData: WindowUsage[];
-}
-
-function formatTokens(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return n.toString();
-}
-
-function getBarColor(pct: number): string {
-  if (pct < 40) return "bg-primary";
-  if (pct < 70) return "bg-warning";
-  return "bg-danger";
-}
-
-function getBarColorText(pct: number): string {
-  if (pct < 40) return "text-primary-light";
-  if (pct < 70) return "text-warning";
-  return "text-danger";
 }
 
 export default function UpcomingResets({ now, usage, history, windowUsageData }: RecentWindowsProps) {

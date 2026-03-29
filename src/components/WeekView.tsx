@@ -9,6 +9,8 @@ import {
   getWindowProgress,
 } from "@/lib/resetTimes";
 import type { UsageCurrent, WindowUsage } from "@/lib/types";
+import { formatTokens } from "@/lib/format";
+import { getBarColor } from "@/lib/format";
 import { useDict } from "@/i18n/context";
 
 interface WeekViewProps {
@@ -16,18 +18,6 @@ interface WeekViewProps {
   now: Date;
   usage: UsageCurrent | null;
   windowUsageData: WindowUsage[];
-}
-
-function formatTokens(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return n.toString();
-}
-
-function getBarColor(pct: number): string {
-  if (pct < 40) return "bg-primary";
-  if (pct < 70) return "bg-warning";
-  return "bg-danger";
 }
 
 export default function WeekView({ weekStart, now, usage, windowUsageData }: WeekViewProps) {
@@ -58,7 +48,7 @@ export default function WeekView({ weekStart, now, usage, windowUsageData }: Wee
 
   const maxTokens = useMemo(() => {
     let max = 0;
-    for (const w of windowUsageData) max = Math.max(max, w.inputTokens + w.outputTokens);
+    for (const w of windowUsageData) max = Math.max(max, w.inputTokens + w.cacheTokens + w.outputTokens);
     return max;
   }, [windowUsageData]);
 
@@ -71,7 +61,7 @@ export default function WeekView({ weekStart, now, usage, windowUsageData }: Wee
 
           return (
             <div
-              key={dayIdx}
+              key={date.getTime()}
               className={`flex items-stretch transition-colors ${
                 isToday
                   ? "bg-window-current"
@@ -100,13 +90,13 @@ export default function WeekView({ weekStart, now, usage, windowUsageData }: Wee
 
               {/* Reset times */}
               <div className="flex-1 flex items-center gap-2 px-3 py-3 overflow-x-auto">
-                {resets.map((reset, idx) => {
+                {resets.map((reset) => {
                   const isCurrentReset = reset.getTime() === currentWindowStart.getTime();
                   const resetIsPast = reset.getTime() < now.getTime() && !isCurrentReset;
                   const tokens = tokenMap.get(reset.getTime());
 
                   return (
-                    <div key={idx} className="relative shrink-0 group">
+                    <div key={reset.getTime()} className="relative shrink-0 group">
                       <div
                         className={`
                           px-3 py-2 rounded-lg text-sm font-mono transition-all min-w-[60px]
@@ -156,6 +146,10 @@ export default function WeekView({ weekStart, now, usage, windowUsageData }: Wee
                                 style={{ width: `${maxTokens > 0 ? (tokens.inputTokens / maxTokens) * 100 : 0}%` }}
                               />
                               <div
+                                className="h-full bg-amber-500/70"
+                                style={{ width: `${maxTokens > 0 ? (tokens.cacheTokens / maxTokens) * 100 : 0}%` }}
+                              />
+                              <div
                                 className="h-full bg-teal-500/70"
                                 style={{ width: `${maxTokens > 0 ? (tokens.outputTokens / maxTokens) * 100 : 0}%` }}
                               />
@@ -168,6 +162,7 @@ export default function WeekView({ weekStart, now, usage, windowUsageData }: Wee
                         <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 hidden group-hover:block z-20">
                           <div className="bg-surface-light border border-border rounded-lg px-2.5 py-1.5 text-[10px] whitespace-nowrap shadow-xl">
                             <p className="text-accent">{dict.chart.input}: {formatTokens(tokens.inputTokens)}</p>
+                            <p className="text-amber-400">{dict.chart.cache}: {formatTokens(tokens.cacheTokens)}</p>
                             <p className="text-teal-400">{dict.chart.output}: {formatTokens(tokens.outputTokens)}</p>
                             <p className="text-text-dim">{tokens.messageCount}msg</p>
                           </div>
