@@ -3,7 +3,7 @@
   "name": "Claude Usage Sync",
   "version": "1.1",
   "description": "claude.ai 사용량을 로컬 대시보드로 자동 동기화",
-  "permissions": ["cookies"],
+  "permissions": ["cookies", "alarms"],
   "host_permissions": ["https://claude.ai/*", "http://localhost:*/*"],
   "background": {
     "service_worker": "background.js"
